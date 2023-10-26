@@ -102,6 +102,9 @@ namespace Program
                 else if (input == "create")
                 {
                     input = await Program.Create();
+                }else if (input == "update")
+                {
+                    input = await Program.Update();
                 }
                 else
                 {
@@ -119,7 +122,30 @@ namespace Program
 
         }
 
-
+        static async Task<string> Update()
+        {
+            var process = new Process
+            {
+                StartInfo = new ProcessStartInfo()
+                {
+                    FileName = "git",
+                    Arguments = "pull -f origin master",
+                    WorkingDirectory = "C:\\Users\\pches\\Desktop\\CLI",
+                }
+            };
+            process.Start();
+            process = new Process
+            {
+                StartInfo = new ProcessStartInfo()
+                {
+                    FileName = "git",
+                    Arguments = "reset HEAD --hard",
+                    WorkingDirectory = "C:\\Users\\pches\\Desktop\\CLI",
+                }
+            };
+            process.Start();
+            return "";
+        }
 
 
         static async Task<string> Correction()
