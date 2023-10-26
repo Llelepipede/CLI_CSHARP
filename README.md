@@ -11,3 +11,5 @@ Pour crée l'alias sous windows:
  
  
 maintenant , hop , ce .bat sera executé a chaque ouverture de terminal, ce qui executera la commande DOSKEY, et initialisera la nouvelle commande ainsi crée :)
+
+
