@@ -1,0 +1,17 @@
+C:\Users\pches\Desktop\CLI\bin\Debug\net7.0\CLI.exe
+C:\Users\pches\Desktop\CLI\bin\Debug\net7.0\CLI.deps.json
+C:\Users\pches\Desktop\CLI\bin\Debug\net7.0\CLI.runtimeconfig.json
+C:\Users\pches\Desktop\CLI\bin\Debug\net7.0\CLI.dll
+C:\Users\pches\Desktop\CLI\bin\Debug\net7.0\CLI.pdb
+C:\Users\pches\Desktop\CLI\obj\Debug\net7.0\CLI.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\pches\Desktop\CLI\obj\Debug\net7.0\CLI.AssemblyInfoInputs.cache
+C:\Users\pches\Desktop\CLI\obj\Debug\net7.0\CLI.AssemblyInfo.cs
+C:\Users\pches\Desktop\CLI\obj\Debug\net7.0\CLI.csproj.CoreCompileInputs.cache
+C:\Users\pches\Desktop\CLI\obj\Debug\net7.0\CLI.dll
+C:\Users\pches\Desktop\CLI\obj\Debug\net7.0\refint\CLI.dll
+C:\Users\pches\Desktop\CLI\obj\Debug\net7.0\CLI.pdb
+C:\Users\pches\Desktop\CLI\obj\Debug\net7.0\CLI.genruntimeconfig.cache
+C:\Users\pches\Desktop\CLI\obj\Debug\net7.0\ref\CLI.dll
+C:\Users\pches\Desktop\CLI\bin\Debug\net7.0\Newtonsoft.Json.dll
+C:\Users\pches\Desktop\CLI\obj\Debug\net7.0\CLI.csproj.AssemblyReference.cache
+C:\Users\pches\Desktop\CLI\obj\Debug\net7.0\CLI.csproj.CopyComplete

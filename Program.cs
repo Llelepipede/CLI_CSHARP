@@ -1,33 +1,84 @@
-﻿namespace Program
+﻿using System.Diagnostics;
+using System.IO;
+using System.Text;
+using System.Text.RegularExpressions;
+using Newtonsoft.Json;
+using static System.Formats.Asn1.AsnWriter;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
+namespace Program
 {
 
-    //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
+    public class ChatCompletion
+    {
+        public string id { get; set; }
+        public string @object { get; set; } 
+        public long created { get; set; }
+        public string model { get; set; }
+        public Choice[] choices { get; set; }
+        public Usage usage { get; set; }
+    }
+
+    public class Choice
+    {
+        public int index { get; set; }
+        public Message message { get; set; }
+        public string finish_reason { get; set; }
+    }
+
+    public class Message
+    {
+        public string role { get; set; }
+        public string content { get; set; }
+    }
+
+    public class Usage
+    {
+        public int prompt_tokens { get; set; }
+        public int completion_tokens { get; set; }
+        public int total_tokens { get; set; }
+    }
+
+
+
+
+
     class Program
     {
+
+        static string apiKey = "Votre clé";
+
         static void Main(string[] args)
         {
             if (args.Length <= 0)
             {
-                Program.Menu();
+                Program.Menu().Wait();
             }
             else
             {
 
                 if (args[0] == "--c")
                 {
-                    Program.Correction();
+                    Program.Correction().Wait();
+                    Console.WriteLine("voulez vous continuer ?");
+                    
                 }
                 else if (args[0] == "--t")
                 {
-                    Program.Trad();
+                    Program.Trad().Wait();
                 }
                 else if (args[0] == "create")
                 {
-                    Program.Create();
+                    Program.Create().Wait();
                 }
                 else
                 {
                     Console.WriteLine("unknown params");
+                }
+                string input = Console.ReadLine();
+                if (input == "y" || input == "yes")
+                {
+                    Menu();
                 }
             }
             
@@ -46,16 +97,23 @@
                 }
                 else if (input == "--t")
                 {
-                    input = Program.Trad();
+                    input = await Program.Trad();
                 }
                 else if (input == "create")
                 {
-                    input = Program.Create();
+                    input = await Program.Create();
                 }
                 else
                 {
+                    Console.WriteLine("commande inconnue");
                     input = Console.ReadLine();
                 }
+            }
+            Console.WriteLine("voulez vous continuer ?");
+            input = Console.ReadLine();
+            if (input == "y" || input == "yes")
+            {
+                Menu();
             }
             Console.WriteLine("bye <3");
 
@@ -72,16 +130,18 @@
             {
                 if (input != "")
                 {
-                    Console.WriteLine("heyooo");
-                    string response = await CallOpenAI(input);
-                    Console.WriteLine("ok");
+                    string response = await correctAPI(input);
+                    Console.WriteLine("--------------");
                     if(response != "")
                     {
-                        Console.WriteLine(response);
+                        Console.WriteLine("->"+response);
+                        input = "n";
 
-                    }else
+                    }
+                    else
                     {
                         Console.WriteLine("error");
+                        input = "";
                     }
                 }
                 else
@@ -92,56 +152,176 @@
             return input;
         }
 
-        static string Trad()
+        static async Task<string> Trad()
         {
-            return "";
-        }
-
-        static string Create()
-        {
-            return "";
-        }
-
-
-        static async Task<string> CallOpenAI(string content)
-        {
-            // Your OpenAI API key
-            string apiKey = "";
-
-            // The endpoint URL for the GPT-3 API
-            string apiUrl = "https://api.openai.com/v1/engines/davinci/completions";
-            Console.WriteLine("koki");
-
-            // Create an instance of HttpClient
-            using (HttpClient client = new HttpClient())
+            Console.WriteLine("\tEcrire le texte a ecrire :");
+            string input = Console.ReadLine();
+            while (input != "n" && input != "no" && input != "non")
             {
-                Console.WriteLine("Prout");
-                // Set the authorization header with your API key
-                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
-                Console.WriteLine("Prout");
-                // Create a request message
-                var request = new HttpRequestMessage(HttpMethod.Post, apiUrl);
-                Console.WriteLine("Prout");
-                // Set the content of the request (for example, a prompt for the chat model)
-                request.Content = new StringContent("{\"prompt\": \" "+  content + " \" corrige moi ce texte }");
-                Console.WriteLine("Prout");
-                // Send the request and get the response
-                var response = await client.SendAsync(request);
-                Console.WriteLine("Prout");
-
-
-                if (response.IsSuccessStatusCode)
+                if (input != "" && input != "n" && input != "no" && input != "non")
                 {
-                    string responseContent = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine(responseContent);
-                    return responseContent;
+                    string response = await tradAPI(input);
+                    Console.WriteLine("--------------");
+                    if (response != "")
+                    {
+                        Console.WriteLine("->" + response);
+                        input = "n";
+
+                    }
+                    else
+                    {
+                        Console.WriteLine("error");
+                        input = "";
+                    }
                 }
                 else
                 {
-                    Console.WriteLine($"API Request failed with status code: {response.StatusCode}");
-                    return "";
+                    input = Console.ReadLine();
                 }
+            }
+            return input;
+        }
 
+        static async Task<string> Create()
+        {
+            Console.WriteLine("dans quelle dossier voulez vous crée votre app react ?");
+            string directory = Console.ReadLine();
+
+            if (!Directory.Exists(directory))
+            {
+                ProcessStartInfo directoryInfo = new ProcessStartInfo
+                {
+                    FileName = "mkdir",
+                    Arguments = directory,
+                    WorkingDirectory = "/",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+                using (Process process = new Process { StartInfo = directoryInfo })
+                {
+                    process.Start();
+                    string output = process.StandardOutput.ReadToEnd();
+                    process.WaitForExit();
+                }
+            }
+            if (!Directory.Exists(directory))
+            {
+                Console.WriteLine("error");
+                return "";
+            }
+            Console.WriteLine("quelle sera le nom de ton appli ?");
+            string name = Console.ReadLine();
+
+            string command = "npx"; // Replace with the actual executable
+            string arguments = "create-react-app " + name; // Replace with the actual command-line arguments
+
+            ProcessStartInfo startInfo = new ProcessStartInfo
+            {
+                FileName = command,
+                Arguments = arguments,
+                WorkingDirectory = directory,
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using (Process process = new Process { StartInfo = startInfo })
+            {
+                process.Start();
+                string output = process.StandardOutput.ReadToEnd();
+                process.WaitForExit();
+            }
+
+            return "n";
+        }
+
+
+        static async Task<string> correctAPI(string content)
+        {
+            // Your OpenAI API key
+            string apiEndpoint = "https://api.openai.com/v1/chat/completions";
+
+            HttpClient httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
+
+
+            var message = new
+            {
+                role = "user",
+                content = "corrige moi ce texte:" + content
+            };
+
+            var messages = new[]{message};
+
+            var requestData = new
+            {
+                messages,
+                model = "gpt-3.5-turbo",
+                max_tokens = 50
+            };
+
+            string jsonData = JsonConvert.SerializeObject(requestData);
+            var temp = new StringContent(jsonData, Encoding.UTF8, "application/json");
+
+            HttpResponseMessage response = await httpClient.PostAsync(apiEndpoint, temp);
+
+            if (response.IsSuccessStatusCode)
+            {
+                string responseContent = await response.Content.ReadAsStringAsync();
+                ChatCompletion ret = JsonConvert.DeserializeObject<ChatCompletion>(responseContent);
+                return ret.choices[0].message.content;
+            }
+            else
+            {
+                Console.WriteLine($"Request failed with status code: {response.StatusCode}");
+                string errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine(errorContent);
+                return "";
+            }
+        }
+
+        static async Task<string> tradAPI(string content)
+        {
+            // Your OpenAI API key
+            string apiEndpoint = "https://api.openai.com/v1/chat/completions";
+
+            HttpClient httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
+
+
+            var message = new
+            {
+                role = "user",
+                content = "Traduit moi ce texte en anglais:" + content
+            };
+
+            var messages = new[]{message};
+
+            var requestData = new
+            {
+                messages,
+                model = "gpt-3.5-turbo",
+                max_tokens = 50
+            };
+
+            string jsonData = JsonConvert.SerializeObject(requestData);
+            var temp = new StringContent(jsonData, Encoding.UTF8, "application/json");
+
+            HttpResponseMessage response = await httpClient.PostAsync(apiEndpoint, temp);
+
+            if (response.IsSuccessStatusCode)
+            {
+                string responseContent = await response.Content.ReadAsStringAsync();
+                ChatCompletion ret = JsonConvert.DeserializeObject<ChatCompletion>(responseContent);
+                return ret.choices[0].message.content;
+            }
+            else
+            {
+                Console.WriteLine($"Request failed with status code: {response.StatusCode}");
+                string errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine(errorContent);
+                return "";
             }
         }
 
